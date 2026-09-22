@@ -8,7 +8,7 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 import config
-from bot import create_bot_app
+from bot import create_bot_app, start_health_server
 
 # Configure logging
 logging.basicConfig(
@@ -31,6 +31,7 @@ def main():
         logger.error("BOT_TOKEN is missing or invalid in .env! Please set your Telegram bot token.")
         sys.exit(1)
 
+    start_health_server()
     logger.info("Initializing Godfather Telegram Application...")
     app = create_bot_app()
 

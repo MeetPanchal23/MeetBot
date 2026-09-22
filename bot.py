@@ -853,12 +853,39 @@ def create_bot_app() -> Application:
 
     return app
 
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(b'{"status": "ok", "bot": "MeetBot IPO Intelligence Agent"}')
+
+    def log_message(self, format, *args):
+        pass
+
+def start_health_server():
+    """Starts a lightweight HTTP server on $PORT if specified (required for Render Free Web Services)."""
+    port_env = os.environ.get("PORT")
+    if port_env:
+        try:
+            port = int(port_env)
+            server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            logger.info(f"Render health-check HTTP server active on port {port}.")
+        except Exception as e:
+            logger.warning(f"Health-check server note: {e}")
+
 def main():
-    """Direct entrypoint for background workers (e.g. Render, Railway, Docker)."""
+    """Direct entrypoint for background workers and cloud services."""
     if not config.BOT_TOKEN or "your_bot_token" in config.BOT_TOKEN:
         logger.error("TELEGRAM_BOT_TOKEN is missing or invalid! Set it in environment variables.")
         sys.exit(1)
 
+    start_health_server()
     logger.info("Initializing MeetBot Telegram Application...")
     app = create_bot_app()
 
@@ -870,4 +897,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
