@@ -36,8 +36,8 @@ def run_tests():
     )
     trig_a, msg_a = engine.evaluate_proactive_triggers(green_ipo)
     assert trig_a == "GREEN_LIGHT", f"Expected GREEN_LIGHT, got {trig_a}"
-    assert "Meet, aa IPO ma direct apply karvano chhe" in msg_a, "Missing exact Gujarati wording for Trigger A"
-    assert "Open Demat now, select Cut-off price" in msg_a, "Missing Demat action"
+    assert "Meet, you should directly apply for this IPO" in msg_a, "Missing exact English wording for Trigger A"
+    assert "Open your Groww / Angel One app now" in msg_a, "Missing Groww / Angel One action"
     print("✅ Trigger A (Green Light) passed:")
     print("   Snippet:", msg_a.splitlines()[2])
 
@@ -58,7 +58,7 @@ def run_tests():
     )
     trig_b, msg_b = engine.evaluate_proactive_triggers(trap_ipo)
     assert trig_b == "RETAIL_TRAP", f"Expected RETAIL_TRAP, got {trig_b}"
-    assert f"Meet, <b>{trap_ipo.name}</b> ma bilkul paisa na nakhsho" in msg_b, "Missing exact wording for Trigger B"
+    assert f"Meet, do not invest any money into <b>{trap_ipo.name}</b>" in msg_b, "Missing exact wording for Trigger B"
     assert "STRICT AVOID" in msg_b, "Missing STRICT AVOID"
     print("✅ Trigger B (Retail Trap Avoid) passed:")
     print("   Snippet:", msg_b.splitlines()[2])
@@ -79,15 +79,15 @@ def run_tests():
     )
     trig_c, msg_c = engine.evaluate_proactive_triggers(sh_ipo)
     assert trig_c == "SHAREHOLDER_RADAR", f"Expected SHAREHOLDER_RADAR, got {trig_c}"
-    assert "no 1 share kharidi lo right now" in msg_c, "Missing 1-share buy wording"
-    assert "Retail + Shareholder double quota" in msg_c, "Missing double quota wording"
+    assert "buy 1 share" in msg_c, "Missing 1-share buy wording"
+    assert "Retail + Shareholder quotas" in msg_c, "Missing double quota wording"
     print("✅ Trigger C (Shareholder Radar) passed:")
     print("   Snippet:", msg_c.splitlines()[2])
 
     # 5. Test Trigger D: UPI Mandate Deadline
     mandate_msg = engine.generate_proactive_mandate_alert("Bajaj Housing Finance")
-    assert "Meet, tara UPI app/bank ma jaine" in mandate_msg, "Missing exact mandate wording"
-    assert "4:30 PM pehla approve kari de" in mandate_msg, "Missing 4:30 PM approval time"
+    assert "approve the mandate" in mandate_msg, "Missing exact mandate wording"
+    assert "before 4:30 PM IST" in mandate_msg, "Missing 4:30 PM approval time"
     print("✅ Trigger D (Mandate Reminder) passed:")
     print("   Snippet:", mandate_msg.splitlines()[0])
 
@@ -128,9 +128,9 @@ def run_tests():
     import bot
     kb = bot.get_broker_apply_keyboard()
     urls = [btn.url for row in kb.inline_keyboard for btn in row]
-    assert "https://console.zerodha.com/ipo" in urls, "Missing Zerodha console deep-link"
     assert "https://groww.in/ipo" in urls, "Missing Groww IPO deep-link"
-    print("   • Broker deep-links verified: Zerodha & Groww buttons active.")
+    assert "https://www.angelone.in/ipo" in urls, "Missing Angel One IPO deep-link"
+    print("   • Broker deep-links verified: Groww & Angel One buttons active.")
 
     # 9. Test Capital Allocation Prioritizer
     print("\n⚖️ Testing Capital Allocation Prioritizer:")
@@ -150,7 +150,7 @@ def run_tests():
     # 11. Test Refund / Unblock Watchdog
     print("\n💸 Testing Refund / Unblock Watchdog:")
     refund_alert = engine.generate_refund_unblock_alert("Bajaj Housing Finance")
-    assert "nu allotment date complete thai gayu chhe" in refund_alert
+    assert "allotment process" in refund_alert and "Bajaj Housing Finance" in refund_alert
     assert "blocked ₹15,000 has been released" in refund_alert
     print("   • Refund watchdog message verified.")
 

@@ -118,7 +118,7 @@ def generate_high_profit_alert(ipo: IPODetails) -> str:
     • Perfect match for your risk-reward profile.
 
     🎯 WHAT YOU NEED TO DO RIGHT NOW:
-    1. Open your Zerodha/Groww/Net Banking app.
+    1. Open your Groww / Angel One app.
     2. Apply for 1 Lot and check "Cut-off Price" (₹[Max Price]).
     3. Submit before 3:30 PM IST.
     4. Approve your UPI mandate before 4:30 PM IST sharp!
@@ -140,7 +140,7 @@ def generate_high_profit_alert(ipo: IPODetails) -> str:
         f"• High institutional demand (QIB {qib_str}), keeping your ₹15k safe.\n"
         f"• Perfect match for your risk-reward profile.\n\n"
         f"🎯 <b>WHAT YOU NEED TO DO RIGHT NOW:</b>\n"
-        f"1. Open your Zerodha/Groww/Net Banking app.\n"
+        f"1. Open your Groww / Angel One app.\n"
         f"2. Apply for 1 Lot and check \"Cut-off Price\" (₹{int(ipo.upper_price):,}).\n"
         f"3. Submit before 3:30 PM IST.\n"
         f"4. Approve your UPI mandate before 4:30 PM IST sharp!\n"
@@ -399,7 +399,7 @@ def generate_secretary_briefing(ipos: List[IPODetails], session_type: str = "mor
         if session_type == "day3":
             action_sec = (
                 f"🎯 <b>WHAT YOU NEED TO DO RIGHT NOW (CLOSING WINDOW):</b>\n"
-                f"1. Open your Zerodha/Groww/Net Banking app.\n"
+                f"1. Open your Groww / Angel One app.\n"
                 f"2. Apply for 1 Lot of <b>{top.name}</b> and check 'Cut-off Price' (₹{int(top.upper_price):,}).\n"
                 f"3. Submit before 3:30 PM IST.\n"
                 f"4. Approve your UPI mandate before 4:30 PM IST sharp!"
@@ -444,10 +444,10 @@ def generate_proactive_green_light_alert(ipo: IPODetails, capital_priority_note:
 
     return (
         f"👑 <b>GODFATHER ALERT: ACTION REQUIRED, MEET!</b>\n\n"
-        f"Meet, aa IPO ma direct apply karvano chhe: <b>{ipo.name}</b>!\n\n"
+        f"Meet, you should directly apply for this IPO: <b>{ipo.name}</b>!\n\n"
         f"• <b>Expected Profit:</b> +₹{ipo.est_profit:,.0f} ({ipo.gmp_percent:+.1f}%)\n"
-        f"• <b>Safety Check:</b> QIB quota <b>{ipo.qib_sub:.1f}x</b> bharai gayo chhe, institutional support strong chhe.\n"
-        f"• <b>Action:</b> Open Demat now, select Cut-off price (₹{int(ipo.upper_price):,}), bid 1 Lot strictly. Complete before 3:30 PM!"
+        f"• <b>Safety Check:</b> QIB quota is subscribed <b>{ipo.qib_sub:.1f}x</b>, institutional support is strong.\n"
+        f"• <b>Action:</b> Open your Groww / Angel One app now, select Cut-off price (₹{int(ipo.upper_price):,}), bid 1 Lot strictly. Complete before 3:30 PM!\n"
         f"{multi_pan_note}"
         f"{priority_section}"
     )
@@ -484,7 +484,7 @@ def generate_refund_unblock_alert(ipo_name: str) -> str:
     """
     return (
         f"💸 <b>REFUND / UNBLOCK WATCHDOG:</b>\n\n"
-        f"Meet, <b>{ipo_name}</b> nu allotment date complete thai gayu chhe!\n\n"
+        f"Meet, the allotment process for <b>{ipo_name}</b> has completed!\n\n"
         f"Check your bank balance/UPI app to confirm your blocked ₹15,000 has been released for the next IPO."
     )
 
@@ -496,17 +496,17 @@ def generate_proactive_avoid_alert(ipo: IPODetails, reason_override: str = "") -
     if reason_override:
         risk_factor = reason_override
     elif ipo.retail_sub >= config.RETAIL_TRAP_RETAIL and ipo.qib_sub < config.RETAIL_TRAP_QIB:
-        risk_factor = f"Retail trap detected (Retail {ipo.retail_sub:.1f}x bharaayu pan QIB silent chhe at {ipo.qib_sub:.1f}x)"
+        risk_factor = f"Retail trap detected (Retail subscribed {ipo.retail_sub:.1f}x but QIB is silent at {ipo.qib_sub:.1f}x)"
     elif ipo.gmp_percent < config.AVOID_GMP_PERCENT:
-        risk_factor = f"GMP crash thai ne {ipo.gmp_percent:+.1f}% thai gayu chhe"
+        risk_factor = f"GMP crashed to {ipo.gmp_percent:+.1f}%"
     else:
         risk_factor = f"Capital at risk (GMP: {ipo.gmp_percent:+.1f}%)"
 
     return (
         f"⚠️ <b>GODFATHER RISK WARNING: AVOID THIS IPO, MEET!</b>\n\n"
-        f"Meet, <b>{ipo.name}</b> ma bilkul paisa na nakhsho.\n\n"
+        f"Meet, do not invest any money into <b>{ipo.name}</b>.\n\n"
         f"• <b>Risk Factor:</b> {risk_factor}.\n"
-        f"• <b>Decision:</b> <b>STRICT AVOID</b>. Capital protect karo, zero entry."
+        f"• <b>Decision:</b> <b>STRICT AVOID</b>. Protect your capital, zero entry."
     )
 
 def generate_proactive_shareholder_alert(parent_company: str, upcoming_ipo: str) -> str:
@@ -516,8 +516,8 @@ def generate_proactive_shareholder_alert(parent_company: str, upcoming_ipo: str)
     """
     return (
         f"💡 <b>GODFATHER STRATEGY ALERT FOR MEET:</b>\n\n"
-        f"Meet, <b>{parent_company}</b> no 1 share kharidi lo right now. "
-        f"<b>{upcoming_ipo}</b> aavi rahyo chhe, aa trick thi tame Retail + Shareholder double quota ma apply kari saksho!"
+        f"Meet, buy 1 share of <b>{parent_company}</b> right now. "
+        f"<b>{upcoming_ipo}</b> is coming soon, and with this strategy you can apply in both Retail + Shareholder quotas to double your allotment chances!"
     )
 
 def generate_proactive_mandate_alert(ipo_name: str) -> str:
@@ -525,8 +525,8 @@ def generate_proactive_mandate_alert(ipo_name: str) -> str:
     Trigger D: UPI Mandate Deadline (⏰ 3:45 PM IST on Day 3)
     """
     return (
-        f"🚨 <b>MANDATE REMINDER:</b> Meet, tara UPI app/bank ma jaine "
-        f"<b>{ipo_name}</b> no mandate 4:30 PM pehla approve kari de, varna application cancel thai jashe!"
+        f"🚨 <b>MANDATE REMINDER:</b> Meet, please open your UPI app / bank and approve the mandate for "
+        f"<b>{ipo_name}</b> before 4:30 PM IST, otherwise your application will be cancelled!"
     )
 
 def evaluate_proactive_triggers(ipo: IPODetails) -> Tuple[Optional[str], Optional[str]]:
@@ -550,13 +550,13 @@ def evaluate_proactive_triggers(ipo: IPODetails) -> Tuple[Optional[str], Optiona
     # 2. Trigger B: Retail Trap Warning (🔴 RED LIGHT / AVOID)
     # High retail with cold QIB
     if (retail >= config.RETAIL_TRAP_RETAIL and qib < config.RETAIL_TRAP_QIB):
-        reason = f"Retail trap detected (Retail {retail:.1f}x bharaayu pan QIB silent chhe at {qib:.1f}x)"
+        reason = f"Retail trap detected (Retail subscribed {retail:.1f}x but QIB is silent at {qib:.1f}x)"
         msg = generate_proactive_avoid_alert(ipo, reason_override=reason)
         return "RETAIL_TRAP", msg
 
     # GMP crash / low margin of safety
     if gmp_pct < config.AVOID_GMP_PERCENT and (ipo.status.lower() == "active" or ipo.current_day >= 1):
-        reason = f"GMP crash thai ne {gmp_pct:+.1f}% thai gayu chhe"
+        reason = f"GMP crashed to {gmp_pct:+.1f}%"
         msg = generate_proactive_avoid_alert(ipo, reason_override=reason)
         return "AVOID_LOW_GMP", msg
 

@@ -78,11 +78,11 @@ async def incoming_message_tracker(update: Update, context: ContextTypes.DEFAULT
 
 
 def get_broker_apply_keyboard() -> InlineKeyboardMarkup:
-    """One-Click Broker Deep-Links for Green Light Action Alerts."""
+    """One-Click Broker Deep-Links for Green Light Action Alerts (Groww & Angel One)."""
     keyboard = [
         [
-            InlineKeyboardButton("🚀 Apply on Zerodha", url="https://console.zerodha.com/ipo"),
             InlineKeyboardButton("🚀 Apply on Groww", url="https://groww.in/ipo"),
+            InlineKeyboardButton("🚀 Apply on Angel One", url="https://www.angelone.in/ipo"),
         ]
     ]
     return InlineKeyboardMarkup(keyboard)
