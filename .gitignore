@@ -1,0 +1,33 @@
+# Environment Variables and Sensitive Keys
+.env
+*.env
+.env.*
+!.env.example
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Local SQLite Database
+*.db
+*.sqlite3
+chat_history.db
+
+# Subscribers state file (avoid leaking personal Telegram IDs)
+subscribers.json
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE / System
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini

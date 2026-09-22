@@ -1,0 +1,20 @@
+services:
+  - type: worker
+    name: meetbot-ipo-worker
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TIMEZONE
+        value: Asia/Kolkata
+      - key: AUTO_DELETE_HOURS
+        value: "24"
+      - key: DATABASE_PATH
+        value: chat_history.db
+
