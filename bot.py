@@ -29,6 +29,7 @@ import config
 import scraper
 import engine
 import chat_cleaner
+import ipo_intelligence
 
 # Setup Logging
 logging.basicConfig(
@@ -85,6 +86,31 @@ def get_broker_apply_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton("🚀 Apply on Angel One", url="https://www.angelone.in/ipo"),
         ]
     ]
+    return InlineKeyboardMarkup(keyboard)
+
+def get_decision_keyboard(meets_requirement: bool) -> InlineKeyboardMarkup:
+    """Dynamic keyboard: One-Click Apply if profitable (GMP >= 20-25%), or Capital Shield if below requirement."""
+    if meets_requirement:
+        keyboard = [
+            [
+                InlineKeyboardButton("🚀 Apply on Groww", url="https://groww.in/ipo"),
+                InlineKeyboardButton("🚀 Apply on Angel One", url="https://www.angelone.in/ipo"),
+            ],
+            [
+                InlineKeyboardButton("📈 GMP Leaderboard", callback_data="cmd_gmp"),
+                InlineKeyboardButton("🏢 Shareholder Radar", callback_data="cmd_radar"),
+            ]
+        ]
+    else:
+        keyboard = [
+            [
+                InlineKeyboardButton("🛡️ Capital Shield Active (Below 20% GMP)", callback_data="cmd_rules"),
+            ],
+            [
+                InlineKeyboardButton("📈 Find Profitable IPOs", callback_data="cmd_gmp"),
+                InlineKeyboardButton("⚡ Live Scan", callback_data="cmd_force_scan"),
+            ]
+        ]
     return InlineKeyboardMarkup(keyboard)
 
 def get_main_keyboard() -> InlineKeyboardMarkup:
@@ -164,6 +190,8 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"• <b>/secretary_test</b> — Immediate proactive briefing from Meet's Financial Secretary\n"
         f"• <b>/clear</b> — Instantly clear chat in 1-2s (pinned messages stay safe)\n"
         f"• <b>/scan</b> — On-demand market scan against Godfather Profit Matrix\n"
+        f"• <b>/ipo &lt;name&gt;</b> — Full Profit & Risk Report for ANY IPO\n"
+        f"• <b>Send any IPO Name directly in chat</b> (e.g. <code>money view Ltd ipo name</code>, <code>Swiggy</code>) for instant analysis!\n"
         f"• <b>/ipos</b> or <b>/live</b> — List active mainline IPOs & quick verdicts\n"
         f"• <b>/gmp</b> — Live Grey Market Premium ranking table\n"
         f"• <b>/verdict &lt;ipo_name&gt;</b> — Instant MeetBot Decision & Action Checklist\n"
@@ -233,21 +261,94 @@ async def cmd_verdict(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = " ".join(context.args) if context.args else ""
     
     if not query:
-        # Default to highest profile active IPO
         ipos = scraper.get_all_ipos()
         if ipos:
             ipo = ipos[0]
+            blueprint_msg = engine.generate_blueprint_alert(ipo)
+            await msg_target.reply_text(blueprint_msg, parse_mode=ParseMode.HTML, reply_markup=get_broker_apply_keyboard())
         else:
-            await msg_target.reply_text("Please specify IPO name: e.g. <code>/verdict Bajaj</code>", parse_mode=ParseMode.HTML)
-            return
-    else:
-        ipo = scraper.get_ipo_by_name(query)
-        if not ipo:
-            await msg_target.reply_text(f"❌ IPO '{query}' not found. Check <code>/ipos</code> for available issues.", parse_mode=ParseMode.HTML)
-            return
+            await msg_target.reply_text("Please specify IPO name: e.g. <code>/verdict Money View</code>", parse_mode=ParseMode.HTML)
+        return
 
-    blueprint_msg = engine.generate_blueprint_alert(ipo)
-    await msg_target.reply_text(blueprint_msg, parse_mode=ParseMode.HTML)
+    status_msg = await msg_target.reply_text(
+        f"🔍 <i>MeetBot is auditing <b>{query}</b>... Gathering live GMP, financials & risk/profit matrix...</i>",
+        parse_mode=ParseMode.HTML
+    )
+    report_data = await asyncio.to_thread(ipo_intelligence.analyze_ipo_comprehensive, query)
+    formatted_report = ipo_intelligence.format_ipo_analysis_report(report_data)
+    await status_msg.edit_text(
+        formatted_report,
+        parse_mode=ParseMode.HTML,
+        reply_markup=get_decision_keyboard(report_data.get("gmp_meets_requirement", False))
+    )
+
+async def cmd_ipo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Deep IPO Intelligence & Risk/Profit Audit for ANY requested IPO."""
+    msg_target = update.message if update.message else update.callback_query.message
+    query = " ".join(context.args) if context.args else ""
+    if not query:
+        await msg_target.reply_text(
+            "💡 <b>Usage:</b> <code>/ipo &lt;company_name&gt;</code>\n"
+            "Example: <code>/ipo Money View Ltd</code> or simply type any IPO name directly in chat!",
+            parse_mode=ParseMode.HTML
+        )
+        return
+
+    status_msg = await msg_target.reply_text(
+        f"🔍 <i>MeetBot is auditing <b>{query}</b>... Gathering live GMP, financials & risk/profit matrix...</i>",
+        parse_mode=ParseMode.HTML
+    )
+    report_data = await asyncio.to_thread(ipo_intelligence.analyze_ipo_comprehensive, query)
+    formatted_report = ipo_intelligence.format_ipo_analysis_report(report_data)
+    await status_msg.edit_text(
+        formatted_report,
+        parse_mode=ParseMode.HTML,
+        reply_markup=get_decision_keyboard(report_data.get("gmp_meets_requirement", False))
+    )
+
+async def handle_user_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Direct text message handler:
+    When Meet sends ANY text in chat (e.g. 'money view Ltd ipo name', 'Swiggy', 'Hyundai', etc.),
+    MeetBot performs a deep audit on live GMP, profitability, financial health,
+    red flag risks, and gives an actionable execution checklist.
+    """
+    if not update.effective_message or not update.effective_message.text:
+        return
+    text = update.effective_message.text.strip()
+    if text.startswith("/"):
+        return  # Handled by CommandHandlers
+
+    lower = text.lower()
+    # Handle basic greetings or casual chat
+    if lower in ["hi", "hello", "hey", "hola", "sup", "ok", "okay", "thanks", "thank you"]:
+        await update.effective_message.reply_text(
+            f"👋 Hey Meet! Send me <b>ANY IPO name</b> (e.g. <code>money view Ltd ipo name</code>, <code>Swiggy</code>, <code>Tata Capital</code>) to get full profit analysis, risks, GMP, and verdict!",
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_main_keyboard()
+        )
+        return
+
+    # Send instantaneous search acknowledgment
+    status_msg = await update.effective_message.reply_text(
+        f"🔍 <i>MeetBot is auditing <b>{text}</b>... Finding live GMP, financial health & risk/profit matrix...</i>",
+        parse_mode=ParseMode.HTML
+    )
+
+    try:
+        report_data = await asyncio.to_thread(ipo_intelligence.analyze_ipo_comprehensive, text)
+        formatted_report = ipo_intelligence.format_ipo_analysis_report(report_data)
+        await status_msg.edit_text(
+            formatted_report,
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_decision_keyboard(report_data.get("gmp_meets_requirement", False))
+        )
+    except Exception as e:
+        logger.error(f"Error auditing IPO query '{text}': {e}", exc_info=True)
+        await status_msg.edit_text(
+            f"⚠️ <i>Could not complete audit for '{text}'. Please check the spelling or use <code>/ipo {text}</code>.</i>",
+            parse_mode=ParseMode.HTML
+        )
 
 async def cmd_radar(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Shareholder Quota radar to capture double-application advantage."""
@@ -846,11 +947,16 @@ def create_bot_app() -> Application:
     app.add_handler(CommandHandler("gmp", cmd_gmp))
     app.add_handler(CommandHandler("verdict", cmd_verdict))
     app.add_handler(CommandHandler("check", cmd_verdict))
+    app.add_handler(CommandHandler("ipo", cmd_ipo))
+    app.add_handler(CommandHandler("analyze", cmd_ipo))
     app.add_handler(CommandHandler("radar", cmd_radar))
     app.add_handler(CommandHandler("pnl", cmd_pnl))
     app.add_handler(CommandHandler("rules", cmd_rules))
     app.add_handler(CommandHandler("testalert", cmd_testalert))
     app.add_handler(CallbackQueryHandler(button_callback))
+
+    # Catch-all plain text handler for natural IPO queries (e.g. 'money view Ltd ipo name')
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_user_text_message))
 
     return app
 

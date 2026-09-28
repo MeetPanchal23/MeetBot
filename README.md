@@ -80,6 +80,7 @@ Protect Meet Panchal's capital (budget strictly capped at **₹14,000 to ₹16,0
 - `/pnl add <IPO> <Amount>` — Log a realized listing profit (e.g., `/pnl add Bajaj Housing 18190`)
 - `/ipos` or `/live` — List active mainline IPOs and quick verdict badges
 - `/gmp` — Live GMP leaderboard sorted by % gain and profit per lot
+- `/ipo <name>` or **any plain message in chat** — Deep On-Demand IPO Audit (Price band, lot size, live GMP, will it make you profit, key risks & red flags, financials & final verdict)
 - `/verdict <ipo>` — Full Godfather Decision Matrix evaluation and action checklist
 - `/radar` — Shareholder Quota radar (parent companies & 1-share action)
 - `/testalert` — Simulate the 4 live automated Godfather alerts

@@ -223,7 +223,7 @@ def fetch_ipowatch_gmp() -> List[IPODetails]:
     }
     ipos = []
     try:
-        r = requests.get(url, headers=headers, timeout=6)
+        r = requests.get(url, headers=headers, timeout=3)
         if r.status_code == 200:
             soup = BeautifulSoup(r.text, 'html.parser')
             tables = soup.find_all('table')
